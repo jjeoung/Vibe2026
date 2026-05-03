@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>💩 Claude 똥 피하기</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #0d0d1a;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    font-family: 'Courier New', monospace;
+    color: white;
+    user-select: none;
+  }
+  #gameCanvas {
+    border: 2px solid #E8825A;
+    border-radius: 8px;
+    display: block;
+    box-shadow: 0 0 30px rgba(232,130,90,0.3);
+  }
+  .hint {
+    margin-top: 8px;
+    font-size: 12px;
+    color: #555;
+    letter-spacing: 1px;
+  }
+</style>
+</head>
+<body>
+<canvas id="gameCanvas" width="400" height="600"></canvas>
+<div class="hint">← → / A D 이동 &nbsp;|&nbsp; 모바일: 좌우 터치</div>
+
+<script>
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+
+// ── 상태 ───────────────────────────────────────────────
+let state = 'start'; // start | playing | gameover
+let score = 0, highScore = 0, lives = 3, level = 1, frame = 0;
+let poops = [], particles = [], stars = [];
+
+// ── 플레이어 ────────────────────────────────────────────
+const P = { x: 200, y: 530, hw: 18, hh: 26, spd: 5.5, inv: 0, bob: 0 };
+
+// ── 키 / 터치 ───────────────────────────────────────────
+const keys = {};
+let touchDir = 0;
+
+document.addEventListener('keydown', e => {
+  keys[e.key] = true;
+  if ((e.key === ' ' || e.key === 'Enter') && state !== 'playing') startGame();
+  if (e.key === ' ') e.preventDefault();
+});
+document.addEventListener('keyup', e => { keys[e.key] = false; });
+
+canvas.addEventListener('touchstart', e => {
+  e.preventDefault();
+  if (state !== 'playing') { startGame(); return; }
+  const tx = e.touches[0].clientX - canvas.getBoundingClientRect().left;
+  touchDir = tx < canvas.width / 2 ? -1 : 1;
+}, { passive: false });
+canvas.addEventListener('touchmove', e => {
+  e.preventDefault();
+  const tx = e.touches[0].clientX - canvas.getBoundingClientRect().left;
+  touchDir = tx < canvas.width / 2 ? -1 : 1;
+}, { passive: false });
+canvas.addEventListener('touchend', e => { e.preventDefault(); touchDir = 0; });
+canvas.addEventListener('click', () => { if (state !== 'playing') startGame(); });
+
+// ── 초기화 ──────────────────────────────────────────────
+function init() {
+  stars = Array.from({ length: 60 }, () => ({
+    x: Math.random() * 400, y: Math.random() * 600,
+    r: Math.random() * 1.5 + 0.3, a: Math.random()
+  }));
+}
+
+function startGame() {
+  score = 0; lives = 3; level = 1; frame = 0;
+  poops = []; particles = [];
+  P.x = 200; P.inv = 0;
+  state = 'playing';
+}
+
+// ── 생성 ────────────────────────────────────────────────
+function spawnPoop() {
+  const sz = 18 + Math.random() * 14;
+  const spd = 1.8 + level * 0.55 + Math.random() * 1.5;
+  poops.push({
+    x: sz + Math.random() * (400 - sz * 2),
+    y: -sz * 2,
+    sz, spd,
+    rot: Math.random() * Math.PI * 2,
+    rs: (Math.random() - 0.5) * 0.12
+  });
+}
+
+function spawnParticles(x, y, col) {
+  for (let i = 0; i < 14; i++) {
+    const a = (Math.PI * 2 / 14) * i + Math.random() * 0.4;
+    const s = 1.5 + Math.random() * 3;
+    particles.push({ x, y, vx: Math.cos(a)*s, vy: Math.sin(a)*s - 1,
+                     life: 1, col, sz: 3 + Math.random()*3 });
+  }
+}
+
+// ── Claude 픽셀 아트 ────────────────────────────────────
+// 12×18 그리드, 각 픽셀 = 4px
+// 0=투명 1=연주황(살색) 2=주황 3=짙은주황 4=눈흰자 5=눈동자 6=검정 7=머리카락 8=신발
+const CLAUDE_ART = [
+  [0,0,0,7,7,7,7,7,7,0,0,0],
+  [0,0,7,7,7,7,7,7,7,7,0,0],
+  [0,7,7,1,1,1,1,1,1,7,7,0],
+  [0,1,1,1,5,1,1,5,1,1,1,0],
+  [0,1,1,5,5,1,1,5,5,1,1,0],
+  [0,1,1,1,1,1,1,1,1,1,1,0],
+  [0,1,1,1,6,6,6,6,1,1,1,0],
+  [0,0,1,1,1,1,1,1,1,1,0,0],
+  [0,0,2,2,2,2,2,2,2,2,0,0],
+  [0,2,2,2,2,2,2,2,2,2,2,0],
+  [2,2,2,2,2,2,2,2,2,2,2,2],
+  [2,2,2,2,2,2,2,2,2,2,2,2],
+  [0,2,2,2,2,2,2,2,2,2,2,0],
+  [0,0,3,3,0,0,0,0,3,3,0,0],
+  [0,0,3,3,0,0,0,0,3,3,0,0],
+  [0,0,8,8,0,0,0,0,8,8,0,0],
+  [0,8,8,8,0,0,0,0,8,8,8,0],
+  [0,0,0,0,0,0,0,0,0,0,0,0],
+];
+const COLORS = {
+  1:'#F5C09A', 2:'#E8825A', 3:'#C05A30',
+  4:'white', 5:'#2a2a2a', 6:'#3a2010',
+  7:'#5C3010', 8:'#2a2a2a'
+};
+
+function drawClaude(cx, cy) {
+  if (P.inv > 0 && Math.floor(P.inv / 6) % 2 === 1) return;
+  const px = 4, cols = 12, rows = 18;
+  const ox = cx - (cols * px) / 2;
+  const oy = cy - rows * px + P.bob;
+  ctx.save();
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      const v = CLAUDE_ART[r][c];
+      if (!v) continue;
+      ctx.fillStyle = COLORS[v];
+      ctx.fillRect(ox + c*px, oy + r*px, px, px);
+    }
+  }
+  // 가슴에 'AI' 텍스트
+  ctx.fillStyle = 'rgba(255,255,255,0.6)';
+  ctx.font = 'bold 7px monospace';
+  ctx.textAlign = 'center';
+  ctx.fillText('AI', cx, oy + 11*px + 7);
+  ctx.restore();
+}
+
+// ── 똥 그리기 ───────────────────────────────────────────
+function drawPoop(p) {
+  ctx.save();
+  ctx.translate(p.x, p.y);
+  ctx.rotate(p.rot);
+  const s = p.sz;
+
+  // 층층이 똥
+  [[0.28, s*0.7, s*0.42],[0.15, s*0.1, s*0.32],[0.05, -s*0.35, s*0.22],[-0.08,-s*0.65,s*0.14]]
+    .forEach(([yOff, yo, rx], i) => {
+      ctx.fillStyle = ['#4a2800','#6B3A1F','#7B4A23','#8B5A33'][i];
+      ctx.beginPath();
+      ctx.ellipse(yOff*s, yo, rx, rx*0.75, 0, 0, Math.PI*2);
+      ctx.fill();
+    });
+
+  // 반짝이 하이라이트
+  ctx.fillStyle = 'rgba(255,255,255,0.15)';
+  ctx.beginPath();
+  ctx.ellipse(-s*0.05, -s*0.6, s*0.06, s*0.04, -0.5, 0, Math.PI*2);
+  ctx.fill();
+
+  // 눈
+  [[-s*0.12, s*0.08],[s*0.12, s*0.08]].forEach(([ex,ey]) => {
+    ctx.fillStyle = 'white';
+    ctx.beginPath(); ctx.arc(ex, ey, s*0.1, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = '#222';
+    ctx.beginPath(); ctx.arc(ex+s*0.02, ey, s*0.055, 0, Math.PI*2); ctx.fill();
+  });
+
+  // 웃음
+  ctx.strokeStyle = '#2a1000'; ctx.lineWidth = 1.2;
+  ctx.beginPath(); ctx.arc(0, s*0.22, s*0.13, 0.2, Math.PI-0.2); ctx.stroke();
+
+  ctx.restore();
+}
+
+// ── 배경 ────────────────────────────────────────────────
+function drawBG() {
+  const hue = 220 + Math.min((level-1)*15, 60);
+  const g = ctx.createLinearGradient(0,0,0,600);
+  g.addColorStop(0, `hsl(${hue},40%,10%)`);
+  g.addColorStop(1, `hsl(${hue},30%,18%)`);
+  ctx.fillStyle = g;
+  ctx.fillRect(0, 0, 400, 600);
+
+  // 별
+  for (const s of stars) {
+    s.a += 0.005;
+    ctx.globalAlpha = 0.3 + Math.sin(s.a)*0.2;
+    ctx.fillStyle = 'white';
+    ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, Math.PI*2); ctx.fill();
+  }
+  ctx.globalAlpha = 1;
+
+  // 바닥
+  ctx.fillStyle = '#1a3a1a';
+  ctx.fillRect(0, 570, 400, 30);
+  ctx.fillStyle = '#2a5a2a';
+  ctx.fillRect(0, 570, 400, 4);
+}
+
+// ── HUD ─────────────────────────────────────────────────
+function drawHUD() {
+  ctx.fillStyle = 'white';
+  ctx.font = 'bold 18px monospace';
+  ctx.textAlign = 'left';
+  ctx.fillText(`점수: ${score}`, 10, 28);
+
+  ctx.fillStyle = '#FFD700';
+  ctx.font = '13px monospace';
+  ctx.fillText(`최고: ${highScore}`, 10, 46);
+
+  ctx.fillStyle = '#E8825A';
+  ctx.font = 'bold 15px monospace';
+  ctx.textAlign = 'center';
+  ctx.fillText(`LEVEL ${level}`, 200, 28);
+
+  ctx.textAlign = 'right';
+  for (let i = 0; i < 3; i++) {
+    ctx.globalAlpha = i < lives ? 1 : 0.2;
+    ctx.font = '18px serif';
+    ctx.fillText('❤', 395 - i*26, 28);
+  }
+  ctx.globalAlpha = 1;
+}
+
+// ── 화면들 ──────────────────────────────────────────────
+function drawStart() {
+  drawBG();
+  ctx.fillStyle = 'rgba(0,0,0,0.5)';
+  ctx.fillRect(0, 0, 400, 600);
+
+  ctx.textAlign = 'center';
+  ctx.fillStyle = '#E8825A';
+  ctx.font = 'bold 38px monospace';
+  ctx.fillText('💩 똥 피하기', 200, 120);
+
+  ctx.fillStyle = '#ccc';
+  ctx.font = '16px monospace';
+  ctx.fillText('Claude Edition', 200, 150);
+
+  P.bob = Math.sin(frame * 0.05) * 5;
+  drawClaude(200, 320);
+
+  ctx.fillStyle = '#FFD700';
+  ctx.font = 'bold 17px monospace';
+  ctx.fillText('▶  클릭 / 스페이스 시작', 200, 420);
+
+  ctx.fillStyle = '#888';
+  ctx.font = '13px monospace';
+  ctx.fillText('← → 또는 A/D 로 이동', 200, 455);
+  ctx.fillText('모바일: 화면 좌우 터치', 200, 475);
+
+  if (highScore > 0) {
+    ctx.fillStyle = '#FFD700';
+    ctx.font = 'bold 15px monospace';
+    ctx.fillText(`🏆 최고 기록: ${highScore}`, 200, 520);
+  }
+}
+
+function drawGameOver() {
+  ctx.fillStyle = 'rgba(0,0,0,0.78)';
+  ctx.fillRect(0, 0, 400, 600);
+  ctx.textAlign = 'center';
+
+  ctx.fillStyle = '#ff4455';
+  ctx.font = 'bold 44px monospace';
+  ctx.fillText('GAME OVER', 200, 200);
+
+  ctx.fillStyle = 'white';
+  ctx.font = 'bold 26px monospace';
+  ctx.fillText(`점수: ${score}`, 200, 260);
+
+  if (score >= highScore && score > 0) {
+    ctx.fillStyle = '#FFD700';
+    ctx.font = 'bold 20px monospace';
+    ctx.fillText('🏆 신기록!', 200, 300);
+  }
+
+  ctx.fillStyle = '#E8825A';
+  ctx.font = 'bold 16px monospace';
+  ctx.fillText(`도달 레벨: ${level}`, 200, 340);
+
+  ctx.fillStyle = '#FFD700';
+  ctx.font = 'bold 17px monospace';
+  ctx.fillText('▶  클릭 / 스페이스 재시작', 200, 410);
+}
+
+// ── 업데이트 ─────────────────────────────────────────────
+function update() {
+  frame++;
+
+  if (state === 'start') return;
+  if (state === 'gameover') return;
+
+  // 이동
+  let dir = touchDir;
+  if (keys['ArrowLeft'] || keys['a'] || keys['A']) dir = -1;
+  else if (keys['ArrowRight'] || keys['d'] || keys['D']) dir = 1;
+  P.x = Math.max(P.hw, Math.min(400 - P.hw, P.x + dir * P.spd));
+
+  P.bob = Math.sin(frame * 0.14) * 3;
+  if (P.inv > 0) P.inv--;
+
+  // 점수 / 레벨
+  if (frame % 25 === 0) score++;
+  level = 1 + Math.floor(score / 25);
+
+  // 똥 소환
+  const rate = Math.max(18, 72 - level * 7);
+  if (frame % rate === 0) spawnPoop();
+  if (level >= 4 && frame % rate === Math.floor(rate/2)) spawnPoop();
+  if (level >= 7 && frame % Math.ceil(rate/2) === 5) spawnPoop();
+
+  // 똥 업데이트
+  for (let i = poops.length - 1; i >= 0; i--) {
+    const p = poops[i];
+    p.y += p.spd;
+    p.rot += p.rs;
+    if (p.y > 640) { poops.splice(i, 1); score += 3; continue; }
+
+    // 충돌 (원형 근사)
+    if (P.inv === 0) {
+      const dx = p.x - P.x, dy = p.y - (P.y - 10);
+      const dist = Math.sqrt(dx*dx + dy*dy);
+      if (dist < p.sz * 0.75 + 13) {
+        poops.splice(i, 1);
+        lives--;
+        P.inv = 100;
+        spawnParticles(P.x, P.y - 10, '#E8825A');
+        spawnParticles(p.x, p.y, '#7B4A23');
+        if (lives <= 0) {
+          if (score > highScore) highScore = score;
+          state = 'gameover';
+        }
+      }
+    }
+  }
+
+  // 파티클 업데이트
+  for (let i = particles.length - 1; i >= 0; i--) {
+    const p = particles[i];
+    p.x += p.vx; p.y += p.vy; p.vy += 0.18; p.life -= 0.035;
+    if (p.life <= 0) particles.splice(i, 1);
+  }
+}
+
+// ── 렌더 ────────────────────────────────────────────────
+function draw() {
+  if (state === 'start') { drawStart(); return; }
+
+  drawBG();
+
+  // 파티클
+  for (const p of particles) {
+    ctx.globalAlpha = Math.max(0, p.life);
+    ctx.fillStyle = p.col;
+    ctx.fillRect(p.x - p.sz/2, p.y - p.sz/2, p.sz, p.sz);
+  }
+  ctx.globalAlpha = 1;
+
+  // 똥
+  for (const p of poops) drawPoop(p);
+
+  // Claude
+  drawClaude(P.x, P.y);
+
+  // HUD
+  drawHUD();
+
+  // 레벨업 플래시
+  if (frame % (25*level) < 8 && level > 1) {
+    ctx.fillStyle = 'rgba(232,130,90,0.12)';
+    ctx.fillRect(0, 0, 400, 600);
+    ctx.fillStyle = '#E8825A';
+    ctx.font = 'bold 22px monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText(`LEVEL ${level}!`, 200, 300);
+  }
+
+  if (state === 'gameover') drawGameOver();
+}
+
+// ── 루프 ────────────────────────────────────────────────
+function loop() {
+  update();
+  draw();
+  requestAnimationFrame(loop);
+}
+
+init();
+loop();
+</script>
+</body>
+</html>
