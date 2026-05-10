@@ -10,34 +10,33 @@
 
     <!--
         UsageStatsManager 접근 권한.
-        일반 권한 요청 불가 → 앱 내부에서 Settings.ACTION_USAGE_ACCESS_SETTINGS 인텐트로
-        사용자를 설정 화면으로 안내해야 함.
+        일반 런타임 요청 불가 → UI 에서 Settings.ACTION_USAGE_ACCESS_SETTINGS 로 유도.
     -->
     <uses-permission
         android:name="android.permission.PACKAGE_USAGE_STATS"
         tools:ignore="ProtectedPermissions" />
 
-    <!-- 기기 재부팅 후 추적 서비스 재시작 -->
+    <!-- 기기 재부팅 후 BootReceiver 가 서비스와 Worker 를 재시작하기 위해 필요 -->
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
-    <!-- 포그라운드 서비스 실행 (API 28+) -->
+    <!-- API 28+: 포그라운드 서비스 실행 선언 -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
     <!--
-        API 34(Android 14) 필수: foregroundServiceType 을 명시해야 함.
-        UsageStats 폴링은 'dataSync' 타입으로 분류.
+        API 34(Android 14) 필수: foregroundServiceType 을 코드와 Manifest 모두에 선언해야 함.
+        UsageStats 폴링 서비스는 dataSync 타입으로 분류.
     -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
 
-    <!-- WorkManager 내부 사용 -->
+    <!-- WorkManager 내부 WakeLock 사용 -->
     <uses-permission android:name="android.permission.WAKE_LOCK" />
 
-    <!-- 알림 권한 (Android 13, API 33+) -->
+    <!-- 알림 권한 (Android 13, API 33+) — 목표 초과·보상 알림에 필요 -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <!--
-        정확한 알람 (목표 초과 시점 즉시 트리거).
-        API 31+ : SCHEDULE_EXACT_ALARM 또는 USE_EXACT_ALARM 필요.
+        목표 초과 시점을 정확히 감지하기 위한 알람 권한.
+        API 31+: SCHEDULE_EXACT_ALARM 또는 USE_EXACT_ALARM 필요.
         USE_EXACT_ALARM 은 시계·달력 앱 전용이므로 SCHEDULE_EXACT_ALARM 사용.
     -->
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
@@ -72,9 +71,10 @@
         </activity>
 
         <!--
-            ── UsageTracking ForegroundService ───────────────────────────
-            실시간 스크린타임 감시 담당.
-            foregroundServiceType = dataSync (API 34 필수 선언).
+            ── UsageTrackingService ──────────────────────────────────────
+            5분 주기로 UsageStatsManager 를 폴링하는 포그라운드 서비스.
+            foregroundServiceType = dataSync: API 34 필수 선언.
+            exported=false: 외부 앱에서 직접 시작 불가.
         -->
         <service
             android:name=".data.service.UsageTrackingService"
@@ -83,7 +83,8 @@
 
         <!--
             ── BootReceiver ──────────────────────────────────────────────
-            기기 재부팅 및 앱 업데이트 후 서비스/WorkManager 재등록.
+            BOOT_COMPLETED: 재부팅 후 서비스와 WorkManager 재시작.
+            MY_PACKAGE_REPLACED: 앱 업데이트 후 동일 처리.
         -->
         <receiver
             android:name=".data.receiver.BootReceiver"
@@ -96,7 +97,7 @@
 
         <!--
             ── CatWidgetReceiver (Glance) ────────────────────────────────
-            GlanceAppWidgetReceiver 를 상속하여 Compose 로 위젯 렌더링.
+            GlanceAppWidgetReceiver 를 상속해 Compose 로 위젯 렌더링.
             cat_widget_info.xml 에서 위젯 크기·업데이트 주기 선언.
         -->
         <receiver
@@ -112,9 +113,10 @@
         </receiver>
 
         <!--
-            ── WorkManager Custom Initializer ────────────────────────────
-            Hilt 와 통합하기 위해 기본 자동 초기화를 제거하고
-            HiltWorkerFactory 를 DopamineCatApplication 에서 수동 등록.
+            ── WorkManager 커스텀 초기화 ─────────────────────────────────
+            Hilt 와 WorkManager 를 통합하려면 기본 자동 초기화를 제거하고
+            DopamineCatApplication 에서 HiltWorkerFactory 를 수동 등록해야 한다.
+            이 설정 없이는 @HiltWorker 내부의 @Inject 가 동작하지 않는다.
         -->
         <provider
             android:name="androidx.startup.InitializationProvider"

@@ -4,19 +4,33 @@ package com.dopaminecat
 import android.app.Application
 import androidx.hilt.work.HiltWorkerFactory
 import androidx.work.Configuration
+import com.dopaminecat.data.service.NotificationHelper
+import com.dopaminecat.data.worker.WorkScheduler
 import dagger.hilt.android.HiltAndroidApp
 import javax.inject.Inject
 
 @HiltAndroidApp
 class DopamineCatApplication : Application(), Configuration.Provider {
 
-    /**
-     * WorkManager 기본 자동 초기화를 AndroidManifest에서 제거했으므로
-     * HiltWorkerFactory 를 여기서 수동으로 주입해 WorkManager 에 등록한다.
-     * 덕분에 Worker 내부에서도 @Inject 를 통한 DI가 가능해진다.
-     */
     @Inject
     lateinit var workerFactory: HiltWorkerFactory
+
+    @Inject
+    lateinit var notificationHelper: NotificationHelper
+
+    @Inject
+    lateinit var workScheduler: WorkScheduler
+
+    override fun onCreate() {
+        super.onCreate()
+
+        // 알림 채널은 앱 시작 시 항상 등록 (이미 존재하면 no-op)
+        notificationHelper.createNotificationChannels()
+
+        // 최초 설치 또는 업데이트 후 Worker 가 없을 때를 대비한 안전망 예약
+        // KEEP 정책: 이미 예약된 작업이 있으면 건드리지 않음
+        workScheduler.scheduleMidnightReward()
+    }
 
     override val workManagerConfiguration: Configuration
         get() = Configuration.Builder()
