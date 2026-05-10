@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- filepath: app/src/main/res/values/strings.xml -->
+<resources>
+    <string name="app_name">도파민 캣</string>
+    <string name="widget_label">도파민 캣</string>
+    <string name="widget_description">고양이의 현재 상태를 바탕화면에서 확인하세요</string>
+    <string name="permission_title">스크린타임 권한이 필요해요</string>
+    <string name="permission_body">고양이가 앱 사용 시간을 모니터링하려면 사용 정보 접근 권한이 필요합니다. 설정에서 \'도파민 캣\'을 허용해 주세요.</string>
+    <string name="permission_button">권한 설정하러 가기</string>
+</resources>

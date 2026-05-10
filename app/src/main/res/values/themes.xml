@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- filepath: app/src/main/res/values/themes.xml -->
+<resources>
+    <style name="Theme.DopamineCat" parent="Theme.Material3.DayNight.NoActionBar" />
+
+    <!--
+        SplashScreen API (core-splashscreen).
+        postSplashScreenTheme 으로 전환되면 NoActionBar 테마가 적용됨.
+    -->
+    <style name="Theme.DopamineCat.SplashScreen" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/splash_background</item>
+        <item name="windowSplashScreenAnimatedIcon">@mipmap/ic_launcher</item>
+        <item name="postSplashScreenTheme">@style/Theme.DopamineCat</item>
+    </style>
+</resources>

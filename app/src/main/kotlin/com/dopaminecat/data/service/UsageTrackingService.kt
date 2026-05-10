@@ -63,6 +63,12 @@ class UsageTrackingService : Service() {
                         if (result.hasExceeded) {
                             notificationHelper.showGoalExceededNotification(result.exceededGoals)
                         }
+                        // 고양이 상태가 바뀌었을 수 있으므로 위젯 갱신 브로드캐스트 전송
+                        sendBroadcast(
+                            android.content.Intent(
+                                com.dopaminecat.presentation.widget.CatWidgetReceiver.ACTION_UPDATE_WIDGET
+                            )
+                        )
                     }
                 delay(POLL_INTERVAL_MS)
             }

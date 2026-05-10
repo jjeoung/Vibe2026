@@ -60,6 +60,12 @@ class MidnightRewardWorker @AssistedInject constructor(
             is RewardResult.AlreadyClaimed -> Unit
             is RewardResult.NoActiveGoals  -> Unit
         }
+        // 자정 보상 후 고양이 상태 변경 → 위젯 즉시 갱신
+        applicationContext.sendBroadcast(
+            android.content.Intent(
+                com.dopaminecat.presentation.widget.CatWidgetReceiver.ACTION_UPDATE_WIDGET
+            )
+        )
     }
 
     /** 다음 날 자정 실행을 예약한다. REPLACE 로 갱신해 중복 예약을 방지한다. */

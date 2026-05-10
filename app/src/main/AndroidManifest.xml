@@ -106,6 +106,8 @@
             android:label="@string/widget_label">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <!-- 서비스·Worker 가 고양이 상태 변경 후 위젯을 즉시 갱신하기 위한 커스텀 액션 -->
+                <action android:name="com.dopaminecat.ACTION_UPDATE_WIDGET" />
             </intent-filter>
             <meta-data
                 android:name="android.appwidget.provider"
