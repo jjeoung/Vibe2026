@@ -47,7 +47,6 @@ class CatWidget : GlanceAppWidget() {
                     totalCoins = coins,
                     modifier = GlanceModifier
                         .fillMaxSize()
-                        .background(GlanceTheme.colors.widgetBackground)
                         .clickable(actionStartActivity<MainActivity>()),
                 )
             }

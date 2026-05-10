@@ -68,6 +68,21 @@ ksp {
     arg("room.expandProjection", "true")
 }
 
+configurations.all {
+    resolutionStrategy {
+        force("androidx.work:work-runtime:2.9.1")
+        force("androidx.work:work-runtime-ktx:2.9.1")
+        force("androidx.datastore:datastore-core:1.1.1")
+        force("androidx.datastore:datastore-preferences-core:1.1.1")
+        force("androidx.lifecycle:lifecycle-runtime:2.7.0")
+        force("androidx.lifecycle:lifecycle-common:2.7.0")
+        force("androidx.lifecycle:lifecycle-viewmodel:2.7.0")
+        force("androidx.core:core:1.13.1")
+        force("androidx.core:core-ktx:1.13.1")
+        force("androidx.collection:collection:1.4.0")
+    }
+}
+
 dependencies {
     // ── Core ──────────────────────────────────────────────────────────────
     implementation(libs.androidx.core.ktx)

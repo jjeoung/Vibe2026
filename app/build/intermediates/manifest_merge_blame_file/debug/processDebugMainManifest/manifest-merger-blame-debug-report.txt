@@ -1,0 +1,539 @@
+1<?xml version="1.0" encoding="utf-8"?>
+2<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+3    package="com.dopaminecat.debug"
+4    android:versionCode="1"
+5    android:versionName="1.0.0-DEBUG" >
+6
+7    <uses-sdk
+8        android:minSdkVersion="26"
+9        android:targetSdkVersion="34" />
+10
+11    <!--
+12        ════════════════════════════════════════════════════════
+13         PERMISSIONS
+14        ════════════════════════════════════════════════════════
+15    -->
+16
+17
+18    <!--
+19        UsageStatsManager 접근 권한.
+20        일반 런타임 요청 불가 → UI 에서 Settings.ACTION_USAGE_ACCESS_SETTINGS 로 유도.
+21    -->
+22    <uses-permission android:name="android.permission.PACKAGE_USAGE_STATS" />
+22-->C:\Users\yongy\StudioProjects\Vibe2026\app\src\main\AndroidManifest.xml:15:5-17:47
+22-->C:\Users\yongy\StudioProjects\Vibe2026\app\src\main\AndroidManifest.xml:16:9-62
+23
+24    <!-- 기기 재부팅 후 BootReceiver 가 서비스와 Worker 를 재시작하기 위해 필요 -->
+25    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+25-->C:\Users\yongy\StudioProjects\Vibe2026\app\src\main\AndroidManifest.xml:20:5-81
+25-->C:\Users\yongy\StudioProjects\Vibe2026\app\src\main\AndroidManifest.xml:20:22-78
+26
+27    <!-- API 28+: 포그라운드 서비스 실행 선언 -->
+28    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+28-->C:\Users\yongy\StudioProjects\Vibe2026\app\src\main\AndroidManifest.xml:23:5-77
+28-->C:\Users\yongy\StudioProjects\Vibe2026\app\src\main\AndroidManifest.xml:23:22-74
+29
+30    <!--
+31        API 34(Android 14) 필수: foregroundServiceType 을 코드와 Manifest 모두에 선언해야 함.
+32        UsageStats 폴링 서비스는 dataSync 타입으로 분류.
+33    -->
+34    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
+34-->C:\Users\yongy\StudioProjects\Vibe2026\app\src\main\AndroidManifest.xml:29:5-87
+34-->C:\Users\yongy\StudioProjects\Vibe2026\app\src\main\AndroidManifest.xml:29:22-84
+35
+36    <!-- WorkManager 내부 WakeLock 사용 -->
+37    <uses-permission android:name="android.permission.WAKE_LOCK" />
+37-->C:\Users\yongy\StudioProjects\Vibe2026\app\src\main\AndroidManifest.xml:32:5-68
+37-->C:\Users\yongy\StudioProjects\Vibe2026\app\src\main\AndroidManifest.xml:32:22-65
+38
+39    <!-- 알림 권한 (Android 13, API 33+) — 목표 초과·보상 알림에 필요 -->
+40    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+40-->C:\Users\yongy\StudioProjects\Vibe2026\app\src\main\AndroidManifest.xml:35:5-77
+40-->C:\Users\yongy\StudioProjects\Vibe2026\app\src\main\AndroidManifest.xml:35:22-74
+41
+42    <!--
+43        목표 초과 시점을 정확히 감지하기 위한 알람 권한.
+44        API 31+: SCHEDULE_EXACT_ALARM 또는 USE_EXACT_ALARM 필요.
+45        USE_EXACT_ALARM 은 시계·달력 앱 전용이므로 SCHEDULE_EXACT_ALARM 사용.
+46    -->
+47    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+47-->C:\Users\yongy\StudioProjects\Vibe2026\app\src\main\AndroidManifest.xml:42:5-79
+47-->C:\Users\yongy\StudioProjects\Vibe2026\app\src\main\AndroidManifest.xml:42:22-76
+48    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+48-->[androidx.work:work-runtime:2.9.1] C:\Users\yongy\.gradle\caches\9.0.0\transforms\b25f8072a8b09fc477bd10050f67d0c2\transformed\work-runtime-2.9.1\AndroidManifest.xml:24:5-79
+48-->[androidx.work:work-runtime:2.9.1] C:\Users\yongy\.gradle\caches\9.0.0\transforms\b25f8072a8b09fc477bd10050f67d0c2\transformed\work-runtime-2.9.1\AndroidManifest.xml:24:22-76
+49
+50    <permission
+50-->[androidx.core:core:1.13.1] C:\Users\yongy\.gradle\caches\9.0.0\transforms\452411f0f2c820880f949c8903b0b61e\transformed\core-1.13.1\AndroidManifest.xml:22:5-24:47
+51        android:name="com.dopaminecat.debug.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
+51-->[androidx.core:core:1.13.1] C:\Users\yongy\.gradle\caches\9.0.0\transforms\452411f0f2c820880f949c8903b0b61e\transformed\core-1.13.1\AndroidManifest.xml:23:9-81
+52        android:protectionLevel="signature" />
+52-->[androidx.core:core:1.13.1] C:\Users\yongy\.gradle\caches\9.0.0\transforms\452411f0f2c820880f949c8903b0b61e\transformed\core-1.13.1\AndroidManifest.xml:24:9-44
+53
+54    <uses-permission android:name="com.dopaminecat.debug.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION" />
+54-->[androidx.core:core:1.13.1] C:\Users\yongy\.gradle\caches\9.0.0\transforms\452411f0f2c820880f949c8903b0b61e\transformed\core-1.13.1\AndroidManifest.xml:26:5-97
+54-->[androidx.core:core:1.13.1] C:\Users\yongy\.gradle\caches\9.0.0\transforms\452411f0f2c820880f949c8903b0b61e\transformed\core-1.13.1\AndroidManifest.xml:26:22-94
+55    <!--
+56        ════════════════════════════════════════════════════════
+57         APPLICATION
+58        ════════════════════════════════════════════════════════
+59    -->
+60    <application
+60-->C:\Users\yongy\StudioProjects\Vibe2026\app\src\main\AndroidManifest.xml:49:5-134:19
+61        android:name="com.dopaminecat.DopamineCatApplication"
+61-->C:\Users\yongy\StudioProjects\Vibe2026\app\src\main\AndroidManifest.xml:50:9-47
+62        android:allowBackup="true"
+62-->C:\Users\yongy\StudioProjects\Vibe2026\app\src\main\AndroidManifest.xml:51:9-35
+63        android:appComponentFactory="androidx.core.app.CoreComponentFactory"
+63-->[androidx.core:core:1.13.1] C:\Users\yongy\.gradle\caches\9.0.0\transforms\452411f0f2c820880f949c8903b0b61e\transformed\core-1.13.1\AndroidManifest.xml:28:18-86
+64        android:dataExtractionRules="@xml/data_extraction_rules"
+64-->C:\Users\yongy\StudioProjects\Vibe2026\app\src\main\AndroidManifest.xml:52:9-65
+65        android:debuggable="true"
+66        android:extractNativeLibs="false"
+67        android:fullBackupContent="@xml/backup_rules"
+67-->C:\Users\yongy\StudioProjects\Vibe2026\app\src\main\AndroidManifest.xml:53:9-54
+68        android:icon="@android:drawable/sym_def_app_icon"
+68-->C:\Users\yongy\StudioProjects\Vibe2026\app\src\main\AndroidManifest.xml:54:9-58
+69        android:label="@string/app_name"
+69-->C:\Users\yongy\StudioProjects\Vibe2026\app\src\main\AndroidManifest.xml:55:9-41
+70        android:roundIcon="@android:drawable/sym_def_app_icon"
+70-->C:\Users\yongy\StudioProjects\Vibe2026\app\src\main\AndroidManifest.xml:56:9-63
+71        android:supportsRtl="true"
+71-->C:\Users\yongy\StudioProjects\Vibe2026\app\src\main\AndroidManifest.xml:57:9-35
+72        android:testOnly="true"
+73        android:theme="@style/Theme.DopamineCat" >
+73-->C:\Users\yongy\StudioProjects\Vibe2026\app\src\main\AndroidManifest.xml:58:9-49
+74
+75        <!-- ── Main Activity ──────────────────────────────────────────── -->
+76        <activity
+76-->C:\Users\yongy\StudioProjects\Vibe2026\app\src\main\AndroidManifest.xml:62:9-71:20
+77            android:name="com.dopaminecat.presentation.MainActivity"
+77-->C:\Users\yongy\StudioProjects\Vibe2026\app\src\main\AndroidManifest.xml:63:13-54
+78            android:exported="true"
+78-->C:\Users\yongy\StudioProjects\Vibe2026\app\src\main\AndroidManifest.xml:64:13-36
+79            android:theme="@style/Theme.DopamineCat.SplashScreen"
+79-->C:\Users\yongy\StudioProjects\Vibe2026\app\src\main\AndroidManifest.xml:66:13-66
+80            android:windowSoftInputMode="adjustResize" >
+80-->C:\Users\yongy\StudioProjects\Vibe2026\app\src\main\AndroidManifest.xml:65:13-55
+81            <intent-filter>
+81-->C:\Users\yongy\StudioProjects\Vibe2026\app\src\main\AndroidManifest.xml:67:13-70:29
+82                <action android:name="android.intent.action.MAIN" />
+82-->C:\Users\yongy\StudioProjects\Vibe2026\app\src\main\AndroidManifest.xml:68:17-69
+82-->C:\Users\yongy\StudioProjects\Vibe2026\app\src\main\AndroidManifest.xml:68:25-66
+83
+84                <category android:name="android.intent.category.LAUNCHER" />
+84-->C:\Users\yongy\StudioProjects\Vibe2026\app\src\main\AndroidManifest.xml:69:17-77
+84-->C:\Users\yongy\StudioProjects\Vibe2026\app\src\main\AndroidManifest.xml:69:27-74
+85            </intent-filter>
+86        </activity>
+87
+88        <!--
+89            ── UsageTrackingService ──────────────────────────────────────
+90            5분 주기로 UsageStatsManager 를 폴링하는 포그라운드 서비스.
+91            foregroundServiceType = dataSync: API 34 필수 선언.
+92            exported=false: 외부 앱에서 직접 시작 불가.
+93        -->
+94        <service
+94-->C:\Users\yongy\StudioProjects\Vibe2026\app\src\main\AndroidManifest.xml:79:9-82:56
+95            android:name="com.dopaminecat.data.service.UsageTrackingService"
+95-->C:\Users\yongy\StudioProjects\Vibe2026\app\src\main\AndroidManifest.xml:80:13-62
+96            android:exported="false"
+96-->C:\Users\yongy\StudioProjects\Vibe2026\app\src\main\AndroidManifest.xml:81:13-37
+97            android:foregroundServiceType="dataSync" />
+97-->C:\Users\yongy\StudioProjects\Vibe2026\app\src\main\AndroidManifest.xml:82:13-53
+98
+99        <!--
+100            ── BootReceiver ──────────────────────────────────────────────
+101            BOOT_COMPLETED: 재부팅 후 서비스와 WorkManager 재시작.
+102            MY_PACKAGE_REPLACED: 앱 업데이트 후 동일 처리.
+103        -->
+104        <receiver
+104-->C:\Users\yongy\StudioProjects\Vibe2026\app\src\main\AndroidManifest.xml:89:9-96:20
+105            android:name="com.dopaminecat.data.receiver.BootReceiver"
+105-->C:\Users\yongy\StudioProjects\Vibe2026\app\src\main\AndroidManifest.xml:90:13-55
+106            android:exported="true" >
+106-->C:\Users\yongy\StudioProjects\Vibe2026\app\src\main\AndroidManifest.xml:91:13-36
+107            <intent-filter>
+107-->C:\Users\yongy\StudioProjects\Vibe2026\app\src\main\AndroidManifest.xml:92:13-95:29
+108                <action android:name="android.intent.action.BOOT_COMPLETED" />
+108-->C:\Users\yongy\StudioProjects\Vibe2026\app\src\main\AndroidManifest.xml:93:17-79
+108-->C:\Users\yongy\StudioProjects\Vibe2026\app\src\main\AndroidManifest.xml:93:25-76
+109                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+109-->C:\Users\yongy\StudioProjects\Vibe2026\app\src\main\AndroidManifest.xml:94:17-84
+109-->C:\Users\yongy\StudioProjects\Vibe2026\app\src\main\AndroidManifest.xml:94:25-81
+110            </intent-filter>
+111        </receiver>
+112
+113        <!--
+114            ── CatWidgetReceiver (Glance) ────────────────────────────────
+115            GlanceAppWidgetReceiver 를 상속해 Compose 로 위젯 렌더링.
+116            cat_widget_info.xml 에서 위젯 크기·업데이트 주기 선언.
+117        -->
+118        <receiver
+118-->C:\Users\yongy\StudioProjects\Vibe2026\app\src\main\AndroidManifest.xml:103:9-115:20
+119            android:name="com.dopaminecat.presentation.widget.CatWidgetReceiver"
+119-->C:\Users\yongy\StudioProjects\Vibe2026\app\src\main\AndroidManifest.xml:104:13-66
+120            android:exported="true"
+120-->C:\Users\yongy\StudioProjects\Vibe2026\app\src\main\AndroidManifest.xml:105:13-36
+121            android:label="@string/widget_label" >
+121-->C:\Users\yongy\StudioProjects\Vibe2026\app\src\main\AndroidManifest.xml:106:13-49
+122            <intent-filter>
+122-->C:\Users\yongy\StudioProjects\Vibe2026\app\src\main\AndroidManifest.xml:107:13-111:29
+123                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+123-->C:\Users\yongy\StudioProjects\Vibe2026\app\src\main\AndroidManifest.xml:108:17-84
+123-->C:\Users\yongy\StudioProjects\Vibe2026\app\src\main\AndroidManifest.xml:108:25-81
+124                <!-- 서비스·Worker 가 고양이 상태 변경 후 위젯을 즉시 갱신하기 위한 커스텀 액션 -->
+125                <action android:name="com.dopaminecat.ACTION_UPDATE_WIDGET" />
+125-->C:\Users\yongy\StudioProjects\Vibe2026\app\src\main\AndroidManifest.xml:110:17-79
+125-->C:\Users\yongy\StudioProjects\Vibe2026\app\src\main\AndroidManifest.xml:110:25-76
+126            </intent-filter>
+127
+128            <meta-data
+128-->C:\Users\yongy\StudioProjects\Vibe2026\app\src\main\AndroidManifest.xml:112:13-114:59
+129                android:name="android.appwidget.provider"
+129-->C:\Users\yongy\StudioProjects\Vibe2026\app\src\main\AndroidManifest.xml:113:17-58
+130                android:resource="@xml/cat_widget_info" />
+130-->C:\Users\yongy\StudioProjects\Vibe2026\app\src\main\AndroidManifest.xml:114:17-56
+131        </receiver>
+132
+133        <!--
+134            ── WorkManager 커스텀 초기화 ─────────────────────────────────
+135            Hilt 와 WorkManager 를 통합하려면 기본 자동 초기화를 제거하고
+136            DopamineCatApplication 에서 HiltWorkerFactory 를 수동 등록해야 한다.
+137            이 설정 없이는 @HiltWorker 내부의 @Inject 가 동작하지 않는다.
+138        -->
+139        <provider
+140            android:name="androidx.startup.InitializationProvider"
+140-->C:\Users\yongy\StudioProjects\Vibe2026\app\src\main\AndroidManifest.xml:124:13-67
+141            android:authorities="com.dopaminecat.debug.androidx-startup"
+141-->C:\Users\yongy\StudioProjects\Vibe2026\app\src\main\AndroidManifest.xml:125:13-68
+142            android:exported="false" >
+142-->C:\Users\yongy\StudioProjects\Vibe2026\app\src\main\AndroidManifest.xml:126:13-37
+143            <meta-data
+143-->[androidx.emoji2:emoji2:1.3.0] C:\Users\yongy\.gradle\caches\9.0.0\transforms\b2a472a3e8235666662781743dba2f6d\transformed\emoji2-1.3.0\AndroidManifest.xml:29:13-31:52
+144                android:name="androidx.emoji2.text.EmojiCompatInitializer"
+144-->[androidx.emoji2:emoji2:1.3.0] C:\Users\yongy\.gradle\caches\9.0.0\transforms\b2a472a3e8235666662781743dba2f6d\transformed\emoji2-1.3.0\AndroidManifest.xml:30:17-75
+145                android:value="androidx.startup" />
+145-->[androidx.emoji2:emoji2:1.3.0] C:\Users\yongy\.gradle\caches\9.0.0\transforms\b2a472a3e8235666662781743dba2f6d\transformed\emoji2-1.3.0\AndroidManifest.xml:31:17-49
+146            <meta-data
+146-->[androidx.lifecycle:lifecycle-process:2.7.0] C:\Users\yongy\.gradle\caches\9.0.0\transforms\a12eb36c9d5d5c1153cc67bc5e29c6e4\transformed\lifecycle-process-2.7.0\AndroidManifest.xml:29:13-31:52
+147                android:name="androidx.lifecycle.ProcessLifecycleInitializer"
+147-->[androidx.lifecycle:lifecycle-process:2.7.0] C:\Users\yongy\.gradle\caches\9.0.0\transforms\a12eb36c9d5d5c1153cc67bc5e29c6e4\transformed\lifecycle-process-2.7.0\AndroidManifest.xml:30:17-78
+148                android:value="androidx.startup" />
+148-->[androidx.lifecycle:lifecycle-process:2.7.0] C:\Users\yongy\.gradle\caches\9.0.0\transforms\a12eb36c9d5d5c1153cc67bc5e29c6e4\transformed\lifecycle-process-2.7.0\AndroidManifest.xml:31:17-49
+149            <meta-data
+149-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\yongy\.gradle\caches\9.0.0\transforms\fe12d4af13d235de6902f3ea16bf4cf6\transformed\profileinstaller-1.3.1\AndroidManifest.xml:29:13-31:52
+150                android:name="androidx.profileinstaller.ProfileInstallerInitializer"
+150-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\yongy\.gradle\caches\9.0.0\transforms\fe12d4af13d235de6902f3ea16bf4cf6\transformed\profileinstaller-1.3.1\AndroidManifest.xml:30:17-85
+151                android:value="androidx.startup" />
+151-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\yongy\.gradle\caches\9.0.0\transforms\fe12d4af13d235de6902f3ea16bf4cf6\transformed\profileinstaller-1.3.1\AndroidManifest.xml:31:17-49
+152        </provider>
+153
+154        <activity
+154-->[androidx.glance:glance-appwidget:1.0.0] C:\Users\yongy\.gradle\caches\9.0.0\transforms\bc48a555f4827604fb41bd55c85ae239\transformed\glance-appwidget-1.0.0\AndroidManifest.xml:23:9-27:40
+155            android:name="androidx.glance.appwidget.action.ActionTrampolineActivity"
+155-->[androidx.glance:glance-appwidget:1.0.0] C:\Users\yongy\.gradle\caches\9.0.0\transforms\bc48a555f4827604fb41bd55c85ae239\transformed\glance-appwidget-1.0.0\AndroidManifest.xml:24:13-85
+156            android:enabled="true"
+156-->[androidx.glance:glance-appwidget:1.0.0] C:\Users\yongy\.gradle\caches\9.0.0\transforms\bc48a555f4827604fb41bd55c85ae239\transformed\glance-appwidget-1.0.0\AndroidManifest.xml:25:13-35
+157            android:excludeFromRecents="true"
+157-->[androidx.glance:glance-appwidget:1.0.0] C:\Users\yongy\.gradle\caches\9.0.0\transforms\bc48a555f4827604fb41bd55c85ae239\transformed\glance-appwidget-1.0.0\AndroidManifest.xml:26:13-46
+158            android:exported="false" />
+158-->[androidx.glance:glance-appwidget:1.0.0] C:\Users\yongy\.gradle\caches\9.0.0\transforms\bc48a555f4827604fb41bd55c85ae239\transformed\glance-appwidget-1.0.0\AndroidManifest.xml:27:13-37
+159        <activity
+159-->[androidx.glance:glance-appwidget:1.0.0] C:\Users\yongy\.gradle\caches\9.0.0\transforms\bc48a555f4827604fb41bd55c85ae239\transformed\glance-appwidget-1.0.0\AndroidManifest.xml:28:9-35:81
+160            android:name="androidx.glance.appwidget.action.InvisibleActionTrampolineActivity"
+160-->[androidx.glance:glance-appwidget:1.0.0] C:\Users\yongy\.gradle\caches\9.0.0\transforms\bc48a555f4827604fb41bd55c85ae239\transformed\glance-appwidget-1.0.0\AndroidManifest.xml:29:13-94
+161            android:enabled="true"
+161-->[androidx.glance:glance-appwidget:1.0.0] C:\Users\yongy\.gradle\caches\9.0.0\transforms\bc48a555f4827604fb41bd55c85ae239\transformed\glance-appwidget-1.0.0\AndroidManifest.xml:30:13-35
+162            android:exported="false"
+162-->[androidx.glance:glance-appwidget:1.0.0] C:\Users\yongy\.gradle\caches\9.0.0\transforms\bc48a555f4827604fb41bd55c85ae239\transformed\glance-appwidget-1.0.0\AndroidManifest.xml:31:13-37
+163            android:launchMode="singleInstance"
+163-->[androidx.glance:glance-appwidget:1.0.0] C:\Users\yongy\.gradle\caches\9.0.0\transforms\bc48a555f4827604fb41bd55c85ae239\transformed\glance-appwidget-1.0.0\AndroidManifest.xml:32:13-48
+164            android:noHistory="true"
+164-->[androidx.glance:glance-appwidget:1.0.0] C:\Users\yongy\.gradle\caches\9.0.0\transforms\bc48a555f4827604fb41bd55c85ae239\transformed\glance-appwidget-1.0.0\AndroidManifest.xml:33:13-37
+165            android:taskAffinity="androidx.glance.appwidget.ListAdapterCallbackTrampoline"
+165-->[androidx.glance:glance-appwidget:1.0.0] C:\Users\yongy\.gradle\caches\9.0.0\transforms\bc48a555f4827604fb41bd55c85ae239\transformed\glance-appwidget-1.0.0\AndroidManifest.xml:34:13-91
+166            android:theme="@style/Widget.Glance.AppWidget.CallbackTrampoline" />
+166-->[androidx.glance:glance-appwidget:1.0.0] C:\Users\yongy\.gradle\caches\9.0.0\transforms\bc48a555f4827604fb41bd55c85ae239\transformed\glance-appwidget-1.0.0\AndroidManifest.xml:35:13-78
+167
+168        <receiver
+168-->[androidx.glance:glance-appwidget:1.0.0] C:\Users\yongy\.gradle\caches\9.0.0\transforms\bc48a555f4827604fb41bd55c85ae239\transformed\glance-appwidget-1.0.0\AndroidManifest.xml:37:9-40:40
+169            android:name="androidx.glance.appwidget.action.ActionCallbackBroadcastReceiver"
+169-->[androidx.glance:glance-appwidget:1.0.0] C:\Users\yongy\.gradle\caches\9.0.0\transforms\bc48a555f4827604fb41bd55c85ae239\transformed\glance-appwidget-1.0.0\AndroidManifest.xml:38:13-92
+170            android:enabled="true"
+170-->[androidx.glance:glance-appwidget:1.0.0] C:\Users\yongy\.gradle\caches\9.0.0\transforms\bc48a555f4827604fb41bd55c85ae239\transformed\glance-appwidget-1.0.0\AndroidManifest.xml:39:13-35
+171            android:exported="false" />
+171-->[androidx.glance:glance-appwidget:1.0.0] C:\Users\yongy\.gradle\caches\9.0.0\transforms\bc48a555f4827604fb41bd55c85ae239\transformed\glance-appwidget-1.0.0\AndroidManifest.xml:40:13-37
+172        <receiver
+172-->[androidx.glance:glance-appwidget:1.0.0] C:\Users\yongy\.gradle\caches\9.0.0\transforms\bc48a555f4827604fb41bd55c85ae239\transformed\glance-appwidget-1.0.0\AndroidManifest.xml:41:9-48:20
+173            android:name="androidx.glance.appwidget.MyPackageReplacedReceiver"
+173-->[androidx.glance:glance-appwidget:1.0.0] C:\Users\yongy\.gradle\caches\9.0.0\transforms\bc48a555f4827604fb41bd55c85ae239\transformed\glance-appwidget-1.0.0\AndroidManifest.xml:42:13-79
+174            android:enabled="true"
+174-->[androidx.glance:glance-appwidget:1.0.0] C:\Users\yongy\.gradle\caches\9.0.0\transforms\bc48a555f4827604fb41bd55c85ae239\transformed\glance-appwidget-1.0.0\AndroidManifest.xml:43:13-35
+175            android:exported="false" >
+175-->[androidx.glance:glance-appwidget:1.0.0] C:\Users\yongy\.gradle\caches\9.0.0\transforms\bc48a555f4827604fb41bd55c85ae239\transformed\glance-appwidget-1.0.0\AndroidManifest.xml:44:13-37
+176            <intent-filter>
+176-->[androidx.glance:glance-appwidget:1.0.0] C:\Users\yongy\.gradle\caches\9.0.0\transforms\bc48a555f4827604fb41bd55c85ae239\transformed\glance-appwidget-1.0.0\AndroidManifest.xml:45:13-47:29
+177                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+177-->C:\Users\yongy\StudioProjects\Vibe2026\app\src\main\AndroidManifest.xml:94:17-84
+177-->C:\Users\yongy\StudioProjects\Vibe2026\app\src\main\AndroidManifest.xml:94:25-81
+178            </intent-filter>
+179        </receiver>
+180
+181        <service
+181-->[androidx.glance:glance-appwidget:1.0.0] C:\Users\yongy\.gradle\caches\9.0.0\transforms\bc48a555f4827604fb41bd55c85ae239\transformed\glance-appwidget-1.0.0\AndroidManifest.xml:50:9-53:72
+182            android:name="androidx.glance.appwidget.GlanceRemoteViewsService"
+182-->[androidx.glance:glance-appwidget:1.0.0] C:\Users\yongy\.gradle\caches\9.0.0\transforms\bc48a555f4827604fb41bd55c85ae239\transformed\glance-appwidget-1.0.0\AndroidManifest.xml:51:13-78
+183            android:exported="true"
+183-->[androidx.glance:glance-appwidget:1.0.0] C:\Users\yongy\.gradle\caches\9.0.0\transforms\bc48a555f4827604fb41bd55c85ae239\transformed\glance-appwidget-1.0.0\AndroidManifest.xml:52:13-36
+184            android:permission="android.permission.BIND_REMOTEVIEWS" />
+184-->[androidx.glance:glance-appwidget:1.0.0] C:\Users\yongy\.gradle\caches\9.0.0\transforms\bc48a555f4827604fb41bd55c85ae239\transformed\glance-appwidget-1.0.0\AndroidManifest.xml:53:13-69
+185        <service
+185-->[androidx.work:work-runtime:2.9.1] C:\Users\yongy\.gradle\caches\9.0.0\transforms\b25f8072a8b09fc477bd10050f67d0c2\transformed\work-runtime-2.9.1\AndroidManifest.xml:39:9-45:35
+186            android:name="androidx.work.impl.background.systemalarm.SystemAlarmService"
+186-->[androidx.work:work-runtime:2.9.1] C:\Users\yongy\.gradle\caches\9.0.0\transforms\b25f8072a8b09fc477bd10050f67d0c2\transformed\work-runtime-2.9.1\AndroidManifest.xml:40:13-88
+187            android:directBootAware="false"
+187-->[androidx.work:work-runtime:2.9.1] C:\Users\yongy\.gradle\caches\9.0.0\transforms\b25f8072a8b09fc477bd10050f67d0c2\transformed\work-runtime-2.9.1\AndroidManifest.xml:41:13-44
+188            android:enabled="@bool/enable_system_alarm_service_default"
+188-->[androidx.work:work-runtime:2.9.1] C:\Users\yongy\.gradle\caches\9.0.0\transforms\b25f8072a8b09fc477bd10050f67d0c2\transformed\work-runtime-2.9.1\AndroidManifest.xml:42:13-72
+189            android:exported="false" />
+189-->[androidx.work:work-runtime:2.9.1] C:\Users\yongy\.gradle\caches\9.0.0\transforms\b25f8072a8b09fc477bd10050f67d0c2\transformed\work-runtime-2.9.1\AndroidManifest.xml:43:13-37
+190        <service
+190-->[androidx.work:work-runtime:2.9.1] C:\Users\yongy\.gradle\caches\9.0.0\transforms\b25f8072a8b09fc477bd10050f67d0c2\transformed\work-runtime-2.9.1\AndroidManifest.xml:46:9-52:35
+191            android:name="androidx.work.impl.background.systemjob.SystemJobService"
+191-->[androidx.work:work-runtime:2.9.1] C:\Users\yongy\.gradle\caches\9.0.0\transforms\b25f8072a8b09fc477bd10050f67d0c2\transformed\work-runtime-2.9.1\AndroidManifest.xml:47:13-84
+192            android:directBootAware="false"
+192-->[androidx.work:work-runtime:2.9.1] C:\Users\yongy\.gradle\caches\9.0.0\transforms\b25f8072a8b09fc477bd10050f67d0c2\transformed\work-runtime-2.9.1\AndroidManifest.xml:48:13-44
+193            android:enabled="@bool/enable_system_job_service_default"
+193-->[androidx.work:work-runtime:2.9.1] C:\Users\yongy\.gradle\caches\9.0.0\transforms\b25f8072a8b09fc477bd10050f67d0c2\transformed\work-runtime-2.9.1\AndroidManifest.xml:49:13-70
+194            android:exported="true"
+194-->[androidx.work:work-runtime:2.9.1] C:\Users\yongy\.gradle\caches\9.0.0\transforms\b25f8072a8b09fc477bd10050f67d0c2\transformed\work-runtime-2.9.1\AndroidManifest.xml:50:13-36
+195            android:permission="android.permission.BIND_JOB_SERVICE" />
+195-->[androidx.work:work-runtime:2.9.1] C:\Users\yongy\.gradle\caches\9.0.0\transforms\b25f8072a8b09fc477bd10050f67d0c2\transformed\work-runtime-2.9.1\AndroidManifest.xml:51:13-69
+196        <service
+196-->[androidx.work:work-runtime:2.9.1] C:\Users\yongy\.gradle\caches\9.0.0\transforms\b25f8072a8b09fc477bd10050f67d0c2\transformed\work-runtime-2.9.1\AndroidManifest.xml:53:9-59:35
+197            android:name="androidx.work.impl.foreground.SystemForegroundService"
+197-->[androidx.work:work-runtime:2.9.1] C:\Users\yongy\.gradle\caches\9.0.0\transforms\b25f8072a8b09fc477bd10050f67d0c2\transformed\work-runtime-2.9.1\AndroidManifest.xml:54:13-81
+198            android:directBootAware="false"
+198-->[androidx.work:work-runtime:2.9.1] C:\Users\yongy\.gradle\caches\9.0.0\transforms\b25f8072a8b09fc477bd10050f67d0c2\transformed\work-runtime-2.9.1\AndroidManifest.xml:55:13-44
+199            android:enabled="@bool/enable_system_foreground_service_default"
+199-->[androidx.work:work-runtime:2.9.1] C:\Users\yongy\.gradle\caches\9.0.0\transforms\b25f8072a8b09fc477bd10050f67d0c2\transformed\work-runtime-2.9.1\AndroidManifest.xml:56:13-77
+200            android:exported="false" />
+200-->[androidx.work:work-runtime:2.9.1] C:\Users\yongy\.gradle\caches\9.0.0\transforms\b25f8072a8b09fc477bd10050f67d0c2\transformed\work-runtime-2.9.1\AndroidManifest.xml:57:13-37
+201
+202        <receiver
+202-->[androidx.work:work-runtime:2.9.1] C:\Users\yongy\.gradle\caches\9.0.0\transforms\b25f8072a8b09fc477bd10050f67d0c2\transformed\work-runtime-2.9.1\AndroidManifest.xml:61:9-66:35
+203            android:name="androidx.work.impl.utils.ForceStopRunnable$BroadcastReceiver"
+203-->[androidx.work:work-runtime:2.9.1] C:\Users\yongy\.gradle\caches\9.0.0\transforms\b25f8072a8b09fc477bd10050f67d0c2\transformed\work-runtime-2.9.1\AndroidManifest.xml:62:13-88
+204            android:directBootAware="false"
+204-->[androidx.work:work-runtime:2.9.1] C:\Users\yongy\.gradle\caches\9.0.0\transforms\b25f8072a8b09fc477bd10050f67d0c2\transformed\work-runtime-2.9.1\AndroidManifest.xml:63:13-44
+205            android:enabled="true"
+205-->[androidx.work:work-runtime:2.9.1] C:\Users\yongy\.gradle\caches\9.0.0\transforms\b25f8072a8b09fc477bd10050f67d0c2\transformed\work-runtime-2.9.1\AndroidManifest.xml:64:13-35
+206            android:exported="false" />
+206-->[androidx.work:work-runtime:2.9.1] C:\Users\yongy\.gradle\caches\9.0.0\transforms\b25f8072a8b09fc477bd10050f67d0c2\transformed\work-runtime-2.9.1\AndroidManifest.xml:65:13-37
+207        <receiver
+207-->[androidx.work:work-runtime:2.9.1] C:\Users\yongy\.gradle\caches\9.0.0\transforms\b25f8072a8b09fc477bd10050f67d0c2\transformed\work-runtime-2.9.1\AndroidManifest.xml:67:9-77:20
+208            android:name="androidx.work.impl.background.systemalarm.ConstraintProxy$BatteryChargingProxy"
+208-->[androidx.work:work-runtime:2.9.1] C:\Users\yongy\.gradle\caches\9.0.0\transforms\b25f8072a8b09fc477bd10050f67d0c2\transformed\work-runtime-2.9.1\AndroidManifest.xml:68:13-106
+209            android:directBootAware="false"
+209-->[androidx.work:work-runtime:2.9.1] C:\Users\yongy\.gradle\caches\9.0.0\transforms\b25f8072a8b09fc477bd10050f67d0c2\transformed\work-runtime-2.9.1\AndroidManifest.xml:69:13-44
+210            android:enabled="false"
+210-->[androidx.work:work-runtime:2.9.1] C:\Users\yongy\.gradle\caches\9.0.0\transforms\b25f8072a8b09fc477bd10050f67d0c2\transformed\work-runtime-2.9.1\AndroidManifest.xml:70:13-36
+211            android:exported="false" >
+211-->[androidx.work:work-runtime:2.9.1] C:\Users\yongy\.gradle\caches\9.0.0\transforms\b25f8072a8b09fc477bd10050f67d0c2\transformed\work-runtime-2.9.1\AndroidManifest.xml:71:13-37
+212            <intent-filter>
+212-->[androidx.work:work-runtime:2.9.1] C:\Users\yongy\.gradle\caches\9.0.0\transforms\b25f8072a8b09fc477bd10050f67d0c2\transformed\work-runtime-2.9.1\AndroidManifest.xml:73:13-76:29
+213                <action android:name="android.intent.action.ACTION_POWER_CONNECTED" />
+213-->[androidx.work:work-runtime:2.9.1] C:\Users\yongy\.gradle\caches\9.0.0\transforms\b25f8072a8b09fc477bd10050f67d0c2\transformed\work-runtime-2.9.1\AndroidManifest.xml:74:17-87
+213-->[androidx.work:work-runtime:2.9.1] C:\Users\yongy\.gradle\caches\9.0.0\transforms\b25f8072a8b09fc477bd10050f67d0c2\transformed\work-runtime-2.9.1\AndroidManifest.xml:74:25-84
+214                <action android:name="android.intent.action.ACTION_POWER_DISCONNECTED" />
+214-->[androidx.work:work-runtime:2.9.1] C:\Users\yongy\.gradle\caches\9.0.0\transforms\b25f8072a8b09fc477bd10050f67d0c2\transformed\work-runtime-2.9.1\AndroidManifest.xml:75:17-90
+214-->[androidx.work:work-runtime:2.9.1] C:\Users\yongy\.gradle\caches\9.0.0\transforms\b25f8072a8b09fc477bd10050f67d0c2\transformed\work-runtime-2.9.1\AndroidManifest.xml:75:25-87
+215            </intent-filter>
+216        </receiver>
+217        <receiver
+217-->[androidx.work:work-runtime:2.9.1] C:\Users\yongy\.gradle\caches\9.0.0\transforms\b25f8072a8b09fc477bd10050f67d0c2\transformed\work-runtime-2.9.1\AndroidManifest.xml:78:9-88:20
+218            android:name="androidx.work.impl.background.systemalarm.ConstraintProxy$BatteryNotLowProxy"
+218-->[androidx.work:work-runtime:2.9.1] C:\Users\yongy\.gradle\caches\9.0.0\transforms\b25f8072a8b09fc477bd10050f67d0c2\transformed\work-runtime-2.9.1\AndroidManifest.xml:79:13-104
+219            android:directBootAware="false"
+219-->[androidx.work:work-runtime:2.9.1] C:\Users\yongy\.gradle\caches\9.0.0\transforms\b25f8072a8b09fc477bd10050f67d0c2\transformed\work-runtime-2.9.1\AndroidManifest.xml:80:13-44
+220            android:enabled="false"
+220-->[androidx.work:work-runtime:2.9.1] C:\Users\yongy\.gradle\caches\9.0.0\transforms\b25f8072a8b09fc477bd10050f67d0c2\transformed\work-runtime-2.9.1\AndroidManifest.xml:81:13-36
+221            android:exported="false" >
+221-->[androidx.work:work-runtime:2.9.1] C:\Users\yongy\.gradle\caches\9.0.0\transforms\b25f8072a8b09fc477bd10050f67d0c2\transformed\work-runtime-2.9.1\AndroidManifest.xml:82:13-37
+222            <intent-filter>
+222-->[androidx.work:work-runtime:2.9.1] C:\Users\yongy\.gradle\caches\9.0.0\transforms\b25f8072a8b09fc477bd10050f67d0c2\transformed\work-runtime-2.9.1\AndroidManifest.xml:84:13-87:29
+223                <action android:name="android.intent.action.BATTERY_OKAY" />
+223-->[androidx.work:work-runtime:2.9.1] C:\Users\yongy\.gradle\caches\9.0.0\transforms\b25f8072a8b09fc477bd10050f67d0c2\transformed\work-runtime-2.9.1\AndroidManifest.xml:85:17-77
+223-->[androidx.work:work-runtime:2.9.1] C:\Users\yongy\.gradle\caches\9.0.0\transforms\b25f8072a8b09fc477bd10050f67d0c2\transformed\work-runtime-2.9.1\AndroidManifest.xml:85:25-74
+224                <action android:name="android.intent.action.BATTERY_LOW" />
+224-->[androidx.work:work-runtime:2.9.1] C:\Users\yongy\.gradle\caches\9.0.0\transforms\b25f8072a8b09fc477bd10050f67d0c2\transformed\work-runtime-2.9.1\AndroidManifest.xml:86:17-76
+224-->[androidx.work:work-runtime:2.9.1] C:\Users\yongy\.gradle\caches\9.0.0\transforms\b25f8072a8b09fc477bd10050f67d0c2\transformed\work-runtime-2.9.1\AndroidManifest.xml:86:25-73
+225            </intent-filter>
+226        </receiver>
+227        <receiver
+227-->[androidx.work:work-runtime:2.9.1] C:\Users\yongy\.gradle\caches\9.0.0\transforms\b25f8072a8b09fc477bd10050f67d0c2\transformed\work-runtime-2.9.1\AndroidManifest.xml:89:9-99:20
+228            android:name="androidx.work.impl.background.systemalarm.ConstraintProxy$StorageNotLowProxy"
+228-->[androidx.work:work-runtime:2.9.1] C:\Users\yongy\.gradle\caches\9.0.0\transforms\b25f8072a8b09fc477bd10050f67d0c2\transformed\work-runtime-2.9.1\AndroidManifest.xml:90:13-104
+229            android:directBootAware="false"
+229-->[androidx.work:work-runtime:2.9.1] C:\Users\yongy\.gradle\caches\9.0.0\transforms\b25f8072a8b09fc477bd10050f67d0c2\transformed\work-runtime-2.9.1\AndroidManifest.xml:91:13-44
+230            android:enabled="false"
+230-->[androidx.work:work-runtime:2.9.1] C:\Users\yongy\.gradle\caches\9.0.0\transforms\b25f8072a8b09fc477bd10050f67d0c2\transformed\work-runtime-2.9.1\AndroidManifest.xml:92:13-36
+231            android:exported="false" >
+231-->[androidx.work:work-runtime:2.9.1] C:\Users\yongy\.gradle\caches\9.0.0\transforms\b25f8072a8b09fc477bd10050f67d0c2\transformed\work-runtime-2.9.1\AndroidManifest.xml:93:13-37
+232            <intent-filter>
+232-->[androidx.work:work-runtime:2.9.1] C:\Users\yongy\.gradle\caches\9.0.0\transforms\b25f8072a8b09fc477bd10050f67d0c2\transformed\work-runtime-2.9.1\AndroidManifest.xml:95:13-98:29
+233                <action android:name="android.intent.action.DEVICE_STORAGE_LOW" />
+233-->[androidx.work:work-runtime:2.9.1] C:\Users\yongy\.gradle\caches\9.0.0\transforms\b25f8072a8b09fc477bd10050f67d0c2\transformed\work-runtime-2.9.1\AndroidManifest.xml:96:17-83
+233-->[androidx.work:work-runtime:2.9.1] C:\Users\yongy\.gradle\caches\9.0.0\transforms\b25f8072a8b09fc477bd10050f67d0c2\transformed\work-runtime-2.9.1\AndroidManifest.xml:96:25-80
+234                <action android:name="android.intent.action.DEVICE_STORAGE_OK" />
+234-->[androidx.work:work-runtime:2.9.1] C:\Users\yongy\.gradle\caches\9.0.0\transforms\b25f8072a8b09fc477bd10050f67d0c2\transformed\work-runtime-2.9.1\AndroidManifest.xml:97:17-82
+234-->[androidx.work:work-runtime:2.9.1] C:\Users\yongy\.gradle\caches\9.0.0\transforms\b25f8072a8b09fc477bd10050f67d0c2\transformed\work-runtime-2.9.1\AndroidManifest.xml:97:25-79
+235            </intent-filter>
+236        </receiver>
+237        <receiver
+237-->[androidx.work:work-runtime:2.9.1] C:\Users\yongy\.gradle\caches\9.0.0\transforms\b25f8072a8b09fc477bd10050f67d0c2\transformed\work-runtime-2.9.1\AndroidManifest.xml:100:9-109:20
+238            android:name="androidx.work.impl.background.systemalarm.ConstraintProxy$NetworkStateProxy"
+238-->[androidx.work:work-runtime:2.9.1] C:\Users\yongy\.gradle\caches\9.0.0\transforms\b25f8072a8b09fc477bd10050f67d0c2\transformed\work-runtime-2.9.1\AndroidManifest.xml:101:13-103
+239            android:directBootAware="false"
+239-->[androidx.work:work-runtime:2.9.1] C:\Users\yongy\.gradle\caches\9.0.0\transforms\b25f8072a8b09fc477bd10050f67d0c2\transformed\work-runtime-2.9.1\AndroidManifest.xml:102:13-44
+240            android:enabled="false"
+240-->[androidx.work:work-runtime:2.9.1] C:\Users\yongy\.gradle\caches\9.0.0\transforms\b25f8072a8b09fc477bd10050f67d0c2\transformed\work-runtime-2.9.1\AndroidManifest.xml:103:13-36
+241            android:exported="false" >
+241-->[androidx.work:work-runtime:2.9.1] C:\Users\yongy\.gradle\caches\9.0.0\transforms\b25f8072a8b09fc477bd10050f67d0c2\transformed\work-runtime-2.9.1\AndroidManifest.xml:104:13-37
+242            <intent-filter>
+242-->[androidx.work:work-runtime:2.9.1] C:\Users\yongy\.gradle\caches\9.0.0\transforms\b25f8072a8b09fc477bd10050f67d0c2\transformed\work-runtime-2.9.1\AndroidManifest.xml:106:13-108:29
+243                <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
+243-->[androidx.work:work-runtime:2.9.1] C:\Users\yongy\.gradle\caches\9.0.0\transforms\b25f8072a8b09fc477bd10050f67d0c2\transformed\work-runtime-2.9.1\AndroidManifest.xml:107:17-79
+243-->[androidx.work:work-runtime:2.9.1] C:\Users\yongy\.gradle\caches\9.0.0\transforms\b25f8072a8b09fc477bd10050f67d0c2\transformed\work-runtime-2.9.1\AndroidManifest.xml:107:25-76
+244            </intent-filter>
+245        </receiver>
+246        <receiver
+246-->[androidx.work:work-runtime:2.9.1] C:\Users\yongy\.gradle\caches\9.0.0\transforms\b25f8072a8b09fc477bd10050f67d0c2\transformed\work-runtime-2.9.1\AndroidManifest.xml:110:9-121:20
+247            android:name="androidx.work.impl.background.systemalarm.RescheduleReceiver"
+247-->[androidx.work:work-runtime:2.9.1] C:\Users\yongy\.gradle\caches\9.0.0\transforms\b25f8072a8b09fc477bd10050f67d0c2\transformed\work-runtime-2.9.1\AndroidManifest.xml:111:13-88
+248            android:directBootAware="false"
+248-->[androidx.work:work-runtime:2.9.1] C:\Users\yongy\.gradle\caches\9.0.0\transforms\b25f8072a8b09fc477bd10050f67d0c2\transformed\work-runtime-2.9.1\AndroidManifest.xml:112:13-44
+249            android:enabled="false"
+249-->[androidx.work:work-runtime:2.9.1] C:\Users\yongy\.gradle\caches\9.0.0\transforms\b25f8072a8b09fc477bd10050f67d0c2\transformed\work-runtime-2.9.1\AndroidManifest.xml:113:13-36
+250            android:exported="false" >
+250-->[androidx.work:work-runtime:2.9.1] C:\Users\yongy\.gradle\caches\9.0.0\transforms\b25f8072a8b09fc477bd10050f67d0c2\transformed\work-runtime-2.9.1\AndroidManifest.xml:114:13-37
+251            <intent-filter>
+251-->[androidx.work:work-runtime:2.9.1] C:\Users\yongy\.gradle\caches\9.0.0\transforms\b25f8072a8b09fc477bd10050f67d0c2\transformed\work-runtime-2.9.1\AndroidManifest.xml:116:13-120:29
+252                <action android:name="android.intent.action.BOOT_COMPLETED" />
+252-->C:\Users\yongy\StudioProjects\Vibe2026\app\src\main\AndroidManifest.xml:93:17-79
+252-->C:\Users\yongy\StudioProjects\Vibe2026\app\src\main\AndroidManifest.xml:93:25-76
+253                <action android:name="android.intent.action.TIME_SET" />
+253-->[androidx.work:work-runtime:2.9.1] C:\Users\yongy\.gradle\caches\9.0.0\transforms\b25f8072a8b09fc477bd10050f67d0c2\transformed\work-runtime-2.9.1\AndroidManifest.xml:118:17-73
+253-->[androidx.work:work-runtime:2.9.1] C:\Users\yongy\.gradle\caches\9.0.0\transforms\b25f8072a8b09fc477bd10050f67d0c2\transformed\work-runtime-2.9.1\AndroidManifest.xml:118:25-70
+254                <action android:name="android.intent.action.TIMEZONE_CHANGED" />
+254-->[androidx.work:work-runtime:2.9.1] C:\Users\yongy\.gradle\caches\9.0.0\transforms\b25f8072a8b09fc477bd10050f67d0c2\transformed\work-runtime-2.9.1\AndroidManifest.xml:119:17-81
+254-->[androidx.work:work-runtime:2.9.1] C:\Users\yongy\.gradle\caches\9.0.0\transforms\b25f8072a8b09fc477bd10050f67d0c2\transformed\work-runtime-2.9.1\AndroidManifest.xml:119:25-78
+255            </intent-filter>
+256        </receiver>
+257        <receiver
+257-->[androidx.work:work-runtime:2.9.1] C:\Users\yongy\.gradle\caches\9.0.0\transforms\b25f8072a8b09fc477bd10050f67d0c2\transformed\work-runtime-2.9.1\AndroidManifest.xml:122:9-131:20
+258            android:name="androidx.work.impl.background.systemalarm.ConstraintProxyUpdateReceiver"
+258-->[androidx.work:work-runtime:2.9.1] C:\Users\yongy\.gradle\caches\9.0.0\transforms\b25f8072a8b09fc477bd10050f67d0c2\transformed\work-runtime-2.9.1\AndroidManifest.xml:123:13-99
+259            android:directBootAware="false"
+259-->[androidx.work:work-runtime:2.9.1] C:\Users\yongy\.gradle\caches\9.0.0\transforms\b25f8072a8b09fc477bd10050f67d0c2\transformed\work-runtime-2.9.1\AndroidManifest.xml:124:13-44
+260            android:enabled="@bool/enable_system_alarm_service_default"
+260-->[androidx.work:work-runtime:2.9.1] C:\Users\yongy\.gradle\caches\9.0.0\transforms\b25f8072a8b09fc477bd10050f67d0c2\transformed\work-runtime-2.9.1\AndroidManifest.xml:125:13-72
+261            android:exported="false" >
+261-->[androidx.work:work-runtime:2.9.1] C:\Users\yongy\.gradle\caches\9.0.0\transforms\b25f8072a8b09fc477bd10050f67d0c2\transformed\work-runtime-2.9.1\AndroidManifest.xml:126:13-37
+262            <intent-filter>
+262-->[androidx.work:work-runtime:2.9.1] C:\Users\yongy\.gradle\caches\9.0.0\transforms\b25f8072a8b09fc477bd10050f67d0c2\transformed\work-runtime-2.9.1\AndroidManifest.xml:128:13-130:29
+263                <action android:name="androidx.work.impl.background.systemalarm.UpdateProxies" />
+263-->[androidx.work:work-runtime:2.9.1] C:\Users\yongy\.gradle\caches\9.0.0\transforms\b25f8072a8b09fc477bd10050f67d0c2\transformed\work-runtime-2.9.1\AndroidManifest.xml:129:17-98
+263-->[androidx.work:work-runtime:2.9.1] C:\Users\yongy\.gradle\caches\9.0.0\transforms\b25f8072a8b09fc477bd10050f67d0c2\transformed\work-runtime-2.9.1\AndroidManifest.xml:129:25-95
+264            </intent-filter>
+265        </receiver>
+266        <receiver
+266-->[androidx.work:work-runtime:2.9.1] C:\Users\yongy\.gradle\caches\9.0.0\transforms\b25f8072a8b09fc477bd10050f67d0c2\transformed\work-runtime-2.9.1\AndroidManifest.xml:132:9-142:20
+267            android:name="androidx.work.impl.diagnostics.DiagnosticsReceiver"
+267-->[androidx.work:work-runtime:2.9.1] C:\Users\yongy\.gradle\caches\9.0.0\transforms\b25f8072a8b09fc477bd10050f67d0c2\transformed\work-runtime-2.9.1\AndroidManifest.xml:133:13-78
+268            android:directBootAware="false"
+268-->[androidx.work:work-runtime:2.9.1] C:\Users\yongy\.gradle\caches\9.0.0\transforms\b25f8072a8b09fc477bd10050f67d0c2\transformed\work-runtime-2.9.1\AndroidManifest.xml:134:13-44
+269            android:enabled="true"
+269-->[androidx.work:work-runtime:2.9.1] C:\Users\yongy\.gradle\caches\9.0.0\transforms\b25f8072a8b09fc477bd10050f67d0c2\transformed\work-runtime-2.9.1\AndroidManifest.xml:135:13-35
+270            android:exported="true"
+270-->[androidx.work:work-runtime:2.9.1] C:\Users\yongy\.gradle\caches\9.0.0\transforms\b25f8072a8b09fc477bd10050f67d0c2\transformed\work-runtime-2.9.1\AndroidManifest.xml:136:13-36
+271            android:permission="android.permission.DUMP" >
+271-->[androidx.work:work-runtime:2.9.1] C:\Users\yongy\.gradle\caches\9.0.0\transforms\b25f8072a8b09fc477bd10050f67d0c2\transformed\work-runtime-2.9.1\AndroidManifest.xml:137:13-57
+272            <intent-filter>
+272-->[androidx.work:work-runtime:2.9.1] C:\Users\yongy\.gradle\caches\9.0.0\transforms\b25f8072a8b09fc477bd10050f67d0c2\transformed\work-runtime-2.9.1\AndroidManifest.xml:139:13-141:29
+273                <action android:name="androidx.work.diagnostics.REQUEST_DIAGNOSTICS" />
+273-->[androidx.work:work-runtime:2.9.1] C:\Users\yongy\.gradle\caches\9.0.0\transforms\b25f8072a8b09fc477bd10050f67d0c2\transformed\work-runtime-2.9.1\AndroidManifest.xml:140:17-88
+273-->[androidx.work:work-runtime:2.9.1] C:\Users\yongy\.gradle\caches\9.0.0\transforms\b25f8072a8b09fc477bd10050f67d0c2\transformed\work-runtime-2.9.1\AndroidManifest.xml:140:25-85
+274            </intent-filter>
+275        </receiver>
+276
+277        <service
+277-->[androidx.core:core-remoteviews:1.0.0] C:\Users\yongy\.gradle\caches\9.0.0\transforms\eb9efdcb66f92672e98753be04fdc834\transformed\core-remoteviews-1.0.0\AndroidManifest.xml:24:9-27:63
+278            android:name="androidx.core.widget.RemoteViewsCompatService"
+278-->[androidx.core:core-remoteviews:1.0.0] C:\Users\yongy\.gradle\caches\9.0.0\transforms\eb9efdcb66f92672e98753be04fdc834\transformed\core-remoteviews-1.0.0\AndroidManifest.xml:25:13-73
+279            android:permission="android.permission.BIND_REMOTEVIEWS" />
+279-->[androidx.core:core-remoteviews:1.0.0] C:\Users\yongy\.gradle\caches\9.0.0\transforms\eb9efdcb66f92672e98753be04fdc834\transformed\core-remoteviews-1.0.0\AndroidManifest.xml:26:13-69
+280
+281        <activity
+281-->[androidx.compose.ui:ui-test-manifest:1.6.7] C:\Users\yongy\.gradle\caches\9.0.0\transforms\c773ff90f52008a94cb3f7b4dfc2c581\transformed\ui-test-manifest-1.6.7\AndroidManifest.xml:23:9-25:39
+282            android:name="androidx.activity.ComponentActivity"
+282-->[androidx.compose.ui:ui-test-manifest:1.6.7] C:\Users\yongy\.gradle\caches\9.0.0\transforms\c773ff90f52008a94cb3f7b4dfc2c581\transformed\ui-test-manifest-1.6.7\AndroidManifest.xml:24:13-63
+283            android:exported="true" />
+283-->[androidx.compose.ui:ui-test-manifest:1.6.7] C:\Users\yongy\.gradle\caches\9.0.0\transforms\c773ff90f52008a94cb3f7b4dfc2c581\transformed\ui-test-manifest-1.6.7\AndroidManifest.xml:25:13-36
+284        <activity
+284-->[androidx.compose.ui:ui-tooling-android:1.6.7] C:\Users\yongy\.gradle\caches\9.0.0\transforms\4f0255ff13ba26d5dbb1f08916dfc113\transformed\ui-tooling-release\AndroidManifest.xml:23:9-25:39
+285            android:name="androidx.compose.ui.tooling.PreviewActivity"
+285-->[androidx.compose.ui:ui-tooling-android:1.6.7] C:\Users\yongy\.gradle\caches\9.0.0\transforms\4f0255ff13ba26d5dbb1f08916dfc113\transformed\ui-tooling-release\AndroidManifest.xml:24:13-71
+286            android:exported="true" />
+286-->[androidx.compose.ui:ui-tooling-android:1.6.7] C:\Users\yongy\.gradle\caches\9.0.0\transforms\4f0255ff13ba26d5dbb1f08916dfc113\transformed\ui-tooling-release\AndroidManifest.xml:25:13-36
+287
+288        <service
+288-->[androidx.room:room-runtime:2.6.1] C:\Users\yongy\.gradle\caches\9.0.0\transforms\37a877c3e49a3a137b2fb69f3dcb5e70\transformed\room-runtime-2.6.1\AndroidManifest.xml:24:9-28:63
+289            android:name="androidx.room.MultiInstanceInvalidationService"
+289-->[androidx.room:room-runtime:2.6.1] C:\Users\yongy\.gradle\caches\9.0.0\transforms\37a877c3e49a3a137b2fb69f3dcb5e70\transformed\room-runtime-2.6.1\AndroidManifest.xml:25:13-74
+290            android:directBootAware="true"
+290-->[androidx.room:room-runtime:2.6.1] C:\Users\yongy\.gradle\caches\9.0.0\transforms\37a877c3e49a3a137b2fb69f3dcb5e70\transformed\room-runtime-2.6.1\AndroidManifest.xml:26:13-43
+291            android:exported="false" />
+291-->[androidx.room:room-runtime:2.6.1] C:\Users\yongy\.gradle\caches\9.0.0\transforms\37a877c3e49a3a137b2fb69f3dcb5e70\transformed\room-runtime-2.6.1\AndroidManifest.xml:27:13-37
+292
+293        <receiver
+293-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\yongy\.gradle\caches\9.0.0\transforms\fe12d4af13d235de6902f3ea16bf4cf6\transformed\profileinstaller-1.3.1\AndroidManifest.xml:34:9-52:20
+294            android:name="androidx.profileinstaller.ProfileInstallReceiver"
+294-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\yongy\.gradle\caches\9.0.0\transforms\fe12d4af13d235de6902f3ea16bf4cf6\transformed\profileinstaller-1.3.1\AndroidManifest.xml:35:13-76
+295            android:directBootAware="false"
+295-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\yongy\.gradle\caches\9.0.0\transforms\fe12d4af13d235de6902f3ea16bf4cf6\transformed\profileinstaller-1.3.1\AndroidManifest.xml:36:13-44
+296            android:enabled="true"
+296-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\yongy\.gradle\caches\9.0.0\transforms\fe12d4af13d235de6902f3ea16bf4cf6\transformed\profileinstaller-1.3.1\AndroidManifest.xml:37:13-35
+297            android:exported="true"
+297-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\yongy\.gradle\caches\9.0.0\transforms\fe12d4af13d235de6902f3ea16bf4cf6\transformed\profileinstaller-1.3.1\AndroidManifest.xml:38:13-36
+298            android:permission="android.permission.DUMP" >
+298-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\yongy\.gradle\caches\9.0.0\transforms\fe12d4af13d235de6902f3ea16bf4cf6\transformed\profileinstaller-1.3.1\AndroidManifest.xml:39:13-57
+299            <intent-filter>
+299-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\yongy\.gradle\caches\9.0.0\transforms\fe12d4af13d235de6902f3ea16bf4cf6\transformed\profileinstaller-1.3.1\AndroidManifest.xml:40:13-42:29
+300                <action android:name="androidx.profileinstaller.action.INSTALL_PROFILE" />
+300-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\yongy\.gradle\caches\9.0.0\transforms\fe12d4af13d235de6902f3ea16bf4cf6\transformed\profileinstaller-1.3.1\AndroidManifest.xml:41:17-91
+300-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\yongy\.gradle\caches\9.0.0\transforms\fe12d4af13d235de6902f3ea16bf4cf6\transformed\profileinstaller-1.3.1\AndroidManifest.xml:41:25-88
+301            </intent-filter>
+302            <intent-filter>
+302-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\yongy\.gradle\caches\9.0.0\transforms\fe12d4af13d235de6902f3ea16bf4cf6\transformed\profileinstaller-1.3.1\AndroidManifest.xml:43:13-45:29
+303                <action android:name="androidx.profileinstaller.action.SKIP_FILE" />
+303-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\yongy\.gradle\caches\9.0.0\transforms\fe12d4af13d235de6902f3ea16bf4cf6\transformed\profileinstaller-1.3.1\AndroidManifest.xml:44:17-85
+303-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\yongy\.gradle\caches\9.0.0\transforms\fe12d4af13d235de6902f3ea16bf4cf6\transformed\profileinstaller-1.3.1\AndroidManifest.xml:44:25-82
+304            </intent-filter>
+305            <intent-filter>
+305-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\yongy\.gradle\caches\9.0.0\transforms\fe12d4af13d235de6902f3ea16bf4cf6\transformed\profileinstaller-1.3.1\AndroidManifest.xml:46:13-48:29
+306                <action android:name="androidx.profileinstaller.action.SAVE_PROFILE" />
+306-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\yongy\.gradle\caches\9.0.0\transforms\fe12d4af13d235de6902f3ea16bf4cf6\transformed\profileinstaller-1.3.1\AndroidManifest.xml:47:17-88
+306-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\yongy\.gradle\caches\9.0.0\transforms\fe12d4af13d235de6902f3ea16bf4cf6\transformed\profileinstaller-1.3.1\AndroidManifest.xml:47:25-85
+307            </intent-filter>
+308            <intent-filter>
+308-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\yongy\.gradle\caches\9.0.0\transforms\fe12d4af13d235de6902f3ea16bf4cf6\transformed\profileinstaller-1.3.1\AndroidManifest.xml:49:13-51:29
+309                <action android:name="androidx.profileinstaller.action.BENCHMARK_OPERATION" />
+309-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\yongy\.gradle\caches\9.0.0\transforms\fe12d4af13d235de6902f3ea16bf4cf6\transformed\profileinstaller-1.3.1\AndroidManifest.xml:50:17-95
+309-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\yongy\.gradle\caches\9.0.0\transforms\fe12d4af13d235de6902f3ea16bf4cf6\transformed\profileinstaller-1.3.1\AndroidManifest.xml:50:25-92
+310            </intent-filter>
+311        </receiver>
+312    </application>
+313
+314</manifest>

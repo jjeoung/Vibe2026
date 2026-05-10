@@ -1,6 +1,6 @@
 // filepath: app/src/main/kotlin/com/dopaminecat/presentation/widget/CatWidgetReceiver.kt
 package com.dopaminecat.presentation.widget
-
+import androidx.glance.appwidget.updateAll
 import android.appwidget.AppWidgetManager
 import android.content.Context
 import android.content.Intent
