@@ -3,17 +3,23 @@ package com.dopaminecat.presentation.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.dopaminecat.BuildConfig
 import com.dopaminecat.di.IoDispatcher
+import com.dopaminecat.domain.model.AppGoal
 import com.dopaminecat.domain.repository.CatRepository
 import com.dopaminecat.domain.repository.CoinRepository
 import com.dopaminecat.domain.repository.GoalRepository
 import com.dopaminecat.domain.repository.UsageRepository
+import com.dopaminecat.domain.usecase.ClaimMidnightRewardUseCase
 import com.dopaminecat.domain.usecase.ObserveCatStateUseCase
+import com.dopaminecat.domain.usecase.RewardResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
@@ -28,8 +34,18 @@ class CatRoomViewModel @Inject constructor(
     private val coinRepository: CoinRepository,
     private val usageRepository: UsageRepository,
     private val observeCatStateUseCase: ObserveCatStateUseCase,
+    private val claimMidnightRewardUseCase: ClaimMidnightRewardUseCase,
     @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
 ) : ViewModel() {
+    private val _settlementResult = MutableSharedFlow<RewardResult>()
+    val settlementResult: SharedFlow<RewardResult> = _settlementResult.asSharedFlow()
+
+    fun triggerManualSettlement() {
+        viewModelScope.launch(ioDispatcher) {
+            val result = claimMidnightRewardUseCase()
+            _settlementResult.emit(result)
+        }
+    }
 
     /**
      * UsageStats 는 30초마다 UI 용으로 폴링.
@@ -76,9 +92,25 @@ class CatRoomViewModel @Inject constructor(
 
     init {
         viewModelScope.launch(ioDispatcher) { catRepository.initCatIfAbsent() }
+        if (BuildConfig.DEBUG) {
+            viewModelScope.launch(ioDispatcher) { seedDebugGoalIfAbsent() }
+        }
+    }
+
+    private suspend fun seedDebugGoalIfAbsent() {
+        if (goalRepository.getGoalByPackage(DEBUG_GOAL_PACKAGE) == null) {
+            goalRepository.upsertGoal(
+                AppGoal(
+                    packageName = DEBUG_GOAL_PACKAGE,
+                    appName = "YouTube (테스트)",
+                    dailyLimitMinutes = 300, // 오늘 유튜브를 5시간 이하로 썼다면 코인 획득!
+                )
+            )
+        }
     }
 
     companion object {
         private const val UI_USAGE_REFRESH_MS = 30_000L
+        private const val DEBUG_GOAL_PACKAGE  = "com.google.android.youtube"
     }
 }

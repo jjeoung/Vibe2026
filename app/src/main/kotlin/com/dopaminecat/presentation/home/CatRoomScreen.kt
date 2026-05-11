@@ -1,4 +1,3 @@
-// filepath: app/src/main/kotlin/com/dopaminecat/presentation/home/CatRoomScreen.kt
 package com.dopaminecat.presentation.home
 
 import androidx.compose.animation.animateColorAsState
@@ -21,16 +20,18 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -47,6 +48,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.dopaminecat.BuildConfig
 import com.dopaminecat.domain.model.Cat
 import com.dopaminecat.domain.model.CatMood
 import kotlin.math.roundToInt
@@ -56,11 +58,13 @@ import kotlin.math.roundToInt
 @Composable
 fun CatRoomScreen(
     uiState: CatRoomUiState,
+    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
+    onManualSettle: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     when (uiState) {
-        is CatRoomUiState.Loading  -> LoadingContent(modifier.fillMaxSize())
-        is CatRoomUiState.Success  -> RoomContent(uiState, modifier)
+        is CatRoomUiState.Loading -> LoadingContent(modifier.fillMaxSize())
+        is CatRoomUiState.Success -> RoomContent(uiState, snackbarHostState, onManualSettle, modifier)
     }
 }
 
@@ -79,6 +83,8 @@ private fun LoadingContent(modifier: Modifier = Modifier) {
 @Composable
 private fun RoomContent(
     state: CatRoomUiState.Success,
+    snackbarHostState: SnackbarHostState,
+    onManualSettle: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val cat = state.cat
@@ -90,6 +96,18 @@ private fun RoomContent(
     )
 
     Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) },
+        floatingActionButton = {
+            if (BuildConfig.DEBUG) {
+                FloatingActionButton(
+                    onClick = onManualSettle,
+                    containerColor = MaterialTheme.colorScheme.errorContainer,
+                    contentColor = MaterialTheme.colorScheme.onErrorContainer,
+                ) {
+                    Text("⚡", fontSize = 20.sp)
+                }
+            }
+        },
         modifier = modifier,
         topBar = {
             TopAppBar(
@@ -187,19 +205,27 @@ private fun CatSection(cat: Cat, modifier: Modifier = Modifier) {
 @Composable
 private fun TrashLayer(trashCount: Int) {
     BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
-        val w = maxWidth
-        val h = maxHeight
+        // 1. 단위를 빼고 순수 숫자(Float)로 먼저 꺼냅니다.
+        val wValue = maxWidth.value
+        val hValue = maxHeight.value
+
+        // 2. Java 랜덤 대신 더 안전한 Kotlin 랜덤을 사용합니다.
         val positions = remember(trashCount) {
             List(trashCount) { i ->
-                val r = java.util.Random(i.toLong() * 31L + 7L)
+                val r = kotlin.random.Random(i * 31 + 7)
                 Pair(r.nextFloat() * 0.80f + 0.05f, r.nextFloat() * 0.65f + 0.05f)
             }
         }
-        positions.forEachIndexed { i, (xF, yF) ->
+
+        // 3. 괄호 분해(Destructuring)를 쓰지 않고 직접 꺼내서 씁니다.
+        positions.forEachIndexed { i, pos ->
             Text(
                 text = TRASH_EMOJIS[i % TRASH_EMOJIS.size],
                 fontSize = 22.sp,
-                modifier = Modifier.offset(x = w * xF, y = h * yF),
+                modifier = Modifier.offset(
+                    x = (wValue * pos.first).dp,
+                    y = (hValue * pos.second).dp
+                )
             )
         }
     }
@@ -299,7 +325,7 @@ private fun GoalProgressRow(gp: AppGoalProgress) {
         label = "goal_${gp.goal.packageName}",
     )
     val barColor = if (gp.isExceeded) MaterialTheme.colorScheme.error
-                   else MaterialTheme.colorScheme.primary
+    else MaterialTheme.colorScheme.primary
 
     Column {
         Row(
@@ -319,7 +345,7 @@ private fun GoalProgressRow(gp: AppGoalProgress) {
                 },
                 style = MaterialTheme.typography.bodySmall,
                 color = if (gp.isExceeded) MaterialTheme.colorScheme.error
-                        else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
             )
         }
         Spacer(modifier = Modifier.height(4.dp))

@@ -4,6 +4,7 @@ import com.dopaminecat.domain.repository.CatRepository;
 import com.dopaminecat.domain.repository.CoinRepository;
 import com.dopaminecat.domain.repository.GoalRepository;
 import com.dopaminecat.domain.repository.UsageRepository;
+import com.dopaminecat.domain.usecase.ClaimMidnightRewardUseCase;
 import com.dopaminecat.domain.usecase.ObserveCatStateUseCase;
 import dagger.internal.DaggerGenerated;
 import dagger.internal.Factory;
@@ -38,6 +39,8 @@ public final class CatRoomViewModel_Factory implements Factory<CatRoomViewModel>
 
   private final Provider<ObserveCatStateUseCase> observeCatStateUseCaseProvider;
 
+  private final Provider<ClaimMidnightRewardUseCase> claimMidnightRewardUseCaseProvider;
+
   private final Provider<CoroutineDispatcher> ioDispatcherProvider;
 
   public CatRoomViewModel_Factory(Provider<CatRepository> catRepositoryProvider,
@@ -45,18 +48,20 @@ public final class CatRoomViewModel_Factory implements Factory<CatRoomViewModel>
       Provider<CoinRepository> coinRepositoryProvider,
       Provider<UsageRepository> usageRepositoryProvider,
       Provider<ObserveCatStateUseCase> observeCatStateUseCaseProvider,
+      Provider<ClaimMidnightRewardUseCase> claimMidnightRewardUseCaseProvider,
       Provider<CoroutineDispatcher> ioDispatcherProvider) {
     this.catRepositoryProvider = catRepositoryProvider;
     this.goalRepositoryProvider = goalRepositoryProvider;
     this.coinRepositoryProvider = coinRepositoryProvider;
     this.usageRepositoryProvider = usageRepositoryProvider;
     this.observeCatStateUseCaseProvider = observeCatStateUseCaseProvider;
+    this.claimMidnightRewardUseCaseProvider = claimMidnightRewardUseCaseProvider;
     this.ioDispatcherProvider = ioDispatcherProvider;
   }
 
   @Override
   public CatRoomViewModel get() {
-    return newInstance(catRepositoryProvider.get(), goalRepositoryProvider.get(), coinRepositoryProvider.get(), usageRepositoryProvider.get(), observeCatStateUseCaseProvider.get(), ioDispatcherProvider.get());
+    return newInstance(catRepositoryProvider.get(), goalRepositoryProvider.get(), coinRepositoryProvider.get(), usageRepositoryProvider.get(), observeCatStateUseCaseProvider.get(), claimMidnightRewardUseCaseProvider.get(), ioDispatcherProvider.get());
   }
 
   public static CatRoomViewModel_Factory create(Provider<CatRepository> catRepositoryProvider,
@@ -64,13 +69,15 @@ public final class CatRoomViewModel_Factory implements Factory<CatRoomViewModel>
       Provider<CoinRepository> coinRepositoryProvider,
       Provider<UsageRepository> usageRepositoryProvider,
       Provider<ObserveCatStateUseCase> observeCatStateUseCaseProvider,
+      Provider<ClaimMidnightRewardUseCase> claimMidnightRewardUseCaseProvider,
       Provider<CoroutineDispatcher> ioDispatcherProvider) {
-    return new CatRoomViewModel_Factory(catRepositoryProvider, goalRepositoryProvider, coinRepositoryProvider, usageRepositoryProvider, observeCatStateUseCaseProvider, ioDispatcherProvider);
+    return new CatRoomViewModel_Factory(catRepositoryProvider, goalRepositoryProvider, coinRepositoryProvider, usageRepositoryProvider, observeCatStateUseCaseProvider, claimMidnightRewardUseCaseProvider, ioDispatcherProvider);
   }
 
   public static CatRoomViewModel newInstance(CatRepository catRepository,
       GoalRepository goalRepository, CoinRepository coinRepository, UsageRepository usageRepository,
-      ObserveCatStateUseCase observeCatStateUseCase, CoroutineDispatcher ioDispatcher) {
-    return new CatRoomViewModel(catRepository, goalRepository, coinRepository, usageRepository, observeCatStateUseCase, ioDispatcher);
+      ObserveCatStateUseCase observeCatStateUseCase,
+      ClaimMidnightRewardUseCase claimMidnightRewardUseCase, CoroutineDispatcher ioDispatcher) {
+    return new CatRoomViewModel(catRepository, goalRepository, coinRepository, usageRepository, observeCatStateUseCase, claimMidnightRewardUseCase, ioDispatcher);
   }
 }
